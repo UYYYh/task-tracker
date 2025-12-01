@@ -5,33 +5,57 @@ import kotlinx.datetime.Instant
 import java.util.UUID
 
 class Task(
-    private var title: String = "Untitled Task",
-    private var description: String = "",
-    creationTime: Instant = Clock.System.now(),
+    title: String = "Untitled Task",
+    description: String = "",
+    creationInstant: Instant = Clock.System.now(),
     deadline: Instant? = null,
     completionTime: Instant? = null,
 ) {
     val id: UUID = UUID.randomUUID()
-    private val creationTime: TaskTime.Actual = TaskTime.Actual(creationTime)
-    private var deadline: TaskTime =
-        when (deadline) {
-            null -> TaskTime.NoDeadLine
-            else -> TaskTime.Actual(deadline)
-        }
-    private var completionTime: TaskTime =
-        when (completionTime) {
-            null -> TaskTime.NotYetSet
-            else -> TaskTime.Actual(completionTime)
-        }
+
+    var title: String = title
+        private set
+
+    var description: String = description
+        private set
+
+    private val creationState: TaskTime.Actual = TaskTime.Actual(creationInstant)
+
+    private var deadlineState: TaskTime =
+        deadline?.let { TaskTime.Actual(it) } ?: TaskTime.NoDeadLine
+
+    private var completionState: TaskTime =
+        completionTime?.let { TaskTime.Actual(it) } ?: TaskTime.NotYetSet
+
+    // Read-only “view” properties
+    val creationTime: Instant
+        get() = creationState.instant
+
+    val deadline: Instant?
+        get() = (deadlineState as? TaskTime.Actual)?.instant
+
+    val completionTime: Instant?
+        get() = (completionState as? TaskTime.Actual)?.instant
+
+    val isCompleted: Boolean
+        get() = completionState is TaskTime.Actual
+
+    val hasDeadline: Boolean
+        get() = deadlineState is TaskTime.Actual
+
+    val isOverdue: Boolean
+        get() =
+            deadlineState is TaskTime.Actual &&
+                (deadlineState as TaskTime.Actual).instant < Clock.System.now()
 
     init {
         if (deadline != null) {
-            require(deadline > creationTime) {
+            require(deadline > creationInstant) {
                 "Deadline must be after creation time"
             }
         }
         if (completionTime != null) {
-            require(completionTime >= creationTime) {
+            require(completionTime >= creationInstant) {
                 "Completion time must be after creation time"
             }
         }
@@ -54,33 +78,15 @@ class Task(
     }
 
     fun complete(completionTime: Instant) {
-        if (completionTime < creationTime.instant) {
+        if (completionTime < creationTime) {
             throw IllegalArgumentException("Completion time must be after creation time")
         }
-        this.completionTime = TaskTime.Actual(completionTime)
+        this.completionState = TaskTime.Actual(completionTime)
     }
 
     fun setDeadline(deadline: Instant) {
-        this.deadline = TaskTime.Actual(deadline)
+        this.deadlineState = TaskTime.Actual(deadline)
     }
-
-    fun isCompleted(): Boolean = completionTime is TaskTime.Actual
-
-    fun isOverdue(): Boolean =
-        deadline is TaskTime.Actual &&
-            (deadline as TaskTime.Actual).instant < Clock.System.now()
-
-    fun hasDeadline(): Boolean = deadline is TaskTime.Actual
-
-    fun getDescription(): String = description
-
-    fun getCreationTime(): Instant = creationTime.instant
-
-    fun getDeadline(): Instant? = (deadline as? TaskTime.Actual)?.instant
-
-    fun getCompletionTime(): Instant? = (completionTime as? TaskTime.Actual)?.instant
-
-    fun getTitle(): String = title
 
     override fun toString(): String =
         "{ Title: '$title' \n" +
