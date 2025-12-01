@@ -41,23 +41,31 @@ class Task(
         fun simpleTask(title: String) = Task(title = title)
     }
 
-    fun isCompleted(): Boolean = completionTime is TaskTime.Actual
-
     fun complete(completionTime: Instant) {
+        if (completionTime < creationTime.instant) {
+            throw IllegalArgumentException("Completion time must be after creation time")
+        }
         this.completionTime = TaskTime.Actual(completionTime)
+    }
+
+    fun setDeadline(deadline: Instant) {
+        if (deadline < creationTime.instant) {
+            throw IllegalArgumentException("Deadline must be after creation time")
+        }
+        this.deadline = TaskTime.Actual(deadline)
     }
 
     fun complete() {
         complete(completionTime = Clock.System.now())
     }
 
+    fun isCompleted(): Boolean = completionTime is TaskTime.Actual
+
     fun isOverdue(): Boolean =
         deadline is TaskTime.Actual &&
             (deadline as TaskTime.Actual).instant < Clock.System.now()
 
-    fun setDeadline(deadline: Instant) {
-        this.deadline = TaskTime.Actual(deadline)
-    }
+    fun hasDeadline(): Boolean = deadline is TaskTime.Actual
 
     fun getCreationTime(): Instant = creationTime.instant
 
