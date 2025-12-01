@@ -61,9 +61,6 @@ class Task(
     }
 
     fun setDeadline(deadline: Instant) {
-        if (deadline < creationTime.instant) {
-            throw IllegalArgumentException("Deadline must be after creation time")
-        }
         this.deadline = TaskTime.Actual(deadline)
     }
 
