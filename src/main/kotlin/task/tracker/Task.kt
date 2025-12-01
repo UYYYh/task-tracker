@@ -7,26 +7,38 @@ import java.util.UUID
 class Task(
     var title: String = "Untitled Task",
     var description: String = "",
-    private val creationTime: TaskTime.Actual,
-    private var deadline: TaskTime = TaskTime.NoDeadLine,
-    private var completionTime: TaskTime = TaskTime.NotYetSet,
+    creationTime: Instant = Clock.System.now(),
+    deadline: Instant? = null,
+    completionTime: Instant? = null,
 ) {
     val id: UUID = UUID.randomUUID()
+    private val creationTime: TaskTime.Actual = TaskTime.Actual(creationTime)
+    private var deadline: TaskTime =
+        when (deadline) {
+            null -> TaskTime.NoDeadLine
+            else -> TaskTime.Actual(deadline)
+        }
+    private var completionTime: TaskTime =
+        when (completionTime) {
+            null -> TaskTime.NotYetSet
+            else -> TaskTime.Actual(completionTime)
+        }
 
     init {
-        require(
-            deadline == TaskTime.NoDeadLine ||
-                deadline == TaskTime.NotYetSet ||
-                deadline as TaskTime.Actual > creationTime,
-        )
+        if (deadline != null) {
+            require(deadline > creationTime) {
+                "Deadline must be after creation time"
+            }
+        }
+        if (completionTime != null) {
+            require(completionTime >= creationTime) {
+                "Completion time must be after creation time"
+            }
+        }
     }
 
     companion object {
-        fun simpleTask(title: String) =
-            Task(
-                title = title,
-                creationTime = TaskTime.Actual(Clock.System.now()),
-            )
+        fun simpleTask(title: String) = Task(title = title)
     }
 
     fun isCompleted(): Boolean = completionTime is TaskTime.Actual
