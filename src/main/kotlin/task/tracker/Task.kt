@@ -5,8 +5,8 @@ import kotlinx.datetime.Instant
 import java.util.UUID
 
 class Task(
-    var title: String = "Untitled Task",
-    var description: String = "",
+    private var title: String = "Untitled Task",
+    private var description: String = "",
     creationTime: Instant = Clock.System.now(),
     deadline: Instant? = null,
     completionTime: Instant? = null,
@@ -41,6 +41,18 @@ class Task(
         fun simpleTask(title: String) = Task(title = title)
     }
 
+    fun setTitle(title: String) {
+        this.title = title
+    }
+
+    fun setDescription(description: String) {
+        this.description = description
+    }
+
+    fun complete() {
+        complete(completionTime = Clock.System.now())
+    }
+
     fun complete(completionTime: Instant) {
         if (completionTime < creationTime.instant) {
             throw IllegalArgumentException("Completion time must be after creation time")
@@ -55,10 +67,6 @@ class Task(
         this.deadline = TaskTime.Actual(deadline)
     }
 
-    fun complete() {
-        complete(completionTime = Clock.System.now())
-    }
-
     fun isCompleted(): Boolean = completionTime is TaskTime.Actual
 
     fun isOverdue(): Boolean =
@@ -67,11 +75,15 @@ class Task(
 
     fun hasDeadline(): Boolean = deadline is TaskTime.Actual
 
+    fun getDescription(): String = description
+
     fun getCreationTime(): Instant = creationTime.instant
 
     fun getDeadline(): Instant? = (deadline as? TaskTime.Actual)?.instant
 
     fun getCompletionTime(): Instant? = (completionTime as? TaskTime.Actual)?.instant
+
+    fun getTitle(): String = title
 
     override fun toString(): String =
         "{ Title: '$title' \n" +
