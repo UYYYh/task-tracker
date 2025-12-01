@@ -1,4 +1,5 @@
-package com.example.task.tracker
+package com.example.task.tracker.domain
+
 import kotlinx.datetime.Instant
 
 sealed class TaskTime {

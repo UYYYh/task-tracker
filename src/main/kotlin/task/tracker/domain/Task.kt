@@ -1,4 +1,4 @@
-package com.example.task.tracker
+package com.example.task.tracker.domain
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
