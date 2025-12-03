@@ -49,6 +49,10 @@ private suspend fun ApplicationCall.respondBool(success: Boolean) {
 }
 
 fun Route.taskRoutes(taskManager: TaskManager) {
+    get("/health") {
+        call.respondText("OK")
+    }
+
     authenticate("auth-bearer") {
         // GET /tasks -> list all tasks
         get("/tasks") {

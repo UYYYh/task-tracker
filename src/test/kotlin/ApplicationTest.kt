@@ -1,8 +1,8 @@
 package com.example
 
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.testApplication
 import task.tracker.server.module
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,7 +14,7 @@ class ApplicationTest {
             application {
                 module()
             }
-            client.get("/").apply {
+            client.get("/health").apply {
                 assertEquals(HttpStatusCode.OK, status)
             }
         }

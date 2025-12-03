@@ -1,5 +1,3 @@
-// task-tracker-server/src/main/kotlin/task/tracker/server/auth/TokenAuth.kt
-
 package task.tracker.server.auth
 
 import io.ktor.server.application.Application
