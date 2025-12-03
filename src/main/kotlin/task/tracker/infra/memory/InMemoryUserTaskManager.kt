@@ -6,13 +6,12 @@ import com.example.task.tracker.dto.toDTO
 import kotlinx.datetime.Instant
 import task.tracker.app.TaskID
 import task.tracker.app.TaskSpec
-import task.tracker.app.UserID
 import task.tracker.app.UserTaskManager
 
 class InMemoryUserTaskManager : UserTaskManager {
     private val tasks: MutableMap<TaskID, Task> = mutableMapOf()
 
-    override fun createTask(spec: TaskSpec): TaskID {
+    override fun createTask(spec: TaskSpec): TaskDTO {
         val task: Task =
             Task(
                 title = spec.title,
@@ -20,7 +19,7 @@ class InMemoryUserTaskManager : UserTaskManager {
                 deadline = spec.deadline,
             )
         tasks[task.id] = task
-        return task.id
+        return task.toDTO()
     }
 
     override fun deleteTask(taskID: TaskID): Boolean = tasks.remove(taskID) != null

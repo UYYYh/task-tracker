@@ -2,10 +2,9 @@ package task.tracker.app
 
 import com.example.task.tracker.dto.TaskDTO
 import kotlinx.datetime.Instant
-import task.tracker.app.TaskSpec
 
 interface UserTaskManager {
-    fun createTask(spec: TaskSpec): TaskID
+    fun createTask(spec: TaskSpec): TaskDTO
 
     fun deleteTask(taskID: TaskID): Boolean
 
