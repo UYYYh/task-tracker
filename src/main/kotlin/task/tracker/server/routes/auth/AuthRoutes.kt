@@ -1,20 +1,10 @@
+package task.tracker.server.routes.auth
 
-package task.tracker.server.routes
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
 import task.tracker.server.auth.SessionRepository
-
-@Serializable
-data class LoginRequest(
-    val username: String,
-)
-
-@Serializable
-data class LoginResponse(
-    val token: String,
-)
 
 fun Route.authRoutes(sessionRepository: SessionRepository) {
     // POST /login
