@@ -2,7 +2,7 @@ package com.example.task.tracker.domain
 
 import kotlinx.datetime.Instant
 
-sealed class TaskTime {
+internal sealed class TaskTime {
     data class Actual(
         val instant: Instant,
     ) : TaskTime(),

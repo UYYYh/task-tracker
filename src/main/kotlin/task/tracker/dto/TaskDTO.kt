@@ -2,6 +2,7 @@ package com.example.task.tracker.dto
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 @Serializable
 data class TaskDTO(

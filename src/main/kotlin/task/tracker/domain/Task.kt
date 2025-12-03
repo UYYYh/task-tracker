@@ -2,16 +2,17 @@ package com.example.task.tracker.domain
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import task.tracker.app.TaskID
 import java.util.UUID
 
-class Task(
+internal class Task(
     title: String = "Untitled Task",
     description: String = "",
     creationInstant: Instant = Clock.System.now(),
     deadline: Instant? = null,
     completionTime: Instant? = null,
 ) {
-    val id: UUID = UUID.randomUUID()
+    val id: TaskID = TaskID.new()
 
     var title: String = title
         private set
@@ -74,10 +75,11 @@ class Task(
     }
 
     fun complete() {
-        complete(completionTime = Clock.System.now())
+        complete(null)
     }
 
-    fun complete(completionTime: Instant) {
+    fun complete(completionTime: Instant?) {
+        val completionTime = completionTime ?: Clock.System.now()
         if (completionTime < creationTime) {
             throw IllegalArgumentException("Completion time must be after creation time")
         }
