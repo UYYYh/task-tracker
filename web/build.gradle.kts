@@ -1,5 +1,6 @@
 plugins {
-    kotlin("js") version "1.9.25"
+    kotlin("js")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 kotlin {
@@ -16,6 +17,12 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-js"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-browser:1.0.0-pre.688")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+}
+
+// 👇 Add this at the end
+tasks.register("prepareKotlinBuildScriptModel") {
+    // no-op, used only to satisfy IDE Gradle sync
 }

@@ -1,30 +1,28 @@
-val kotlin_version: String by project
-val logback_version: String by project
-
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("io.ktor.plugin") version "3.3.2"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    kotlin("jvm")
+    id("io.ktor.plugin")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-group = "com.example"
-version = "0.0.1"
+repositories { mavenCentral() }
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 dependencies {
     implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-cors")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    implementation("io.ktor:ktor-server-auth")
+    implementation("io.ktor:ktor-server-status-pages")
+
+    implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-    implementation("io.ktor:ktor-server-auth-jvm:2.3.12")
-    implementation("io.ktor:ktor-server-status-pages-jvm:$kotlin_version")
+
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation(kotlin("test-junit"))
 }
