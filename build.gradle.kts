@@ -26,4 +26,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     implementation("io.ktor:ktor-server-auth-jvm:2.3.12")
+    implementation("io.ktor:ktor-server-status-pages-jvm:$kotlin_version")
 }
