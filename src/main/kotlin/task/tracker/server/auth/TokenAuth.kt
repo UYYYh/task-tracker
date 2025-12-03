@@ -2,8 +2,10 @@
 
 package task.tracker.server.auth
 
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.bearer
 
 fun Application.configureTokenAuth(sessionRepository: SessionRepository) {
     install(Authentication) {

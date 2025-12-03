@@ -1,9 +1,9 @@
-// e.g. in com.example.plugins.Routing.kt
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
+
+import io.ktor.server.application.Application
+import io.ktor.server.routing.routing
 import task.tracker.app.TaskManager
 import task.tracker.server.auth.SessionRepository
-import task.tracker.server.routes.authRoutes
+import task.tracker.server.routes.auth.authRoutes
 import task.tracker.server.routes.task.taskRoutes
 
 fun Application.configureRouting(
