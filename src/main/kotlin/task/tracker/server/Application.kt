@@ -9,7 +9,7 @@ import task.tracker.app.TaskManager
 import task.tracker.infra.memory.InMemoryTaskManager
 import task.tracker.server.auth.SessionRepository
 import task.tracker.server.auth.configureTokenAuth
-import task.tracker.server.infra.InMemorySessionRepository
+import task.tracker.server.auth.infra.InMemorySessionRepository
 
 fun main(args: Array<String>) {
     EngineMain

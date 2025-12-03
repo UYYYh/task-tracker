@@ -1,4 +1,4 @@
-package task.tracker.server.infra
+package task.tracker.server.auth.infra
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
