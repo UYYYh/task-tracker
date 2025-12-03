@@ -4,7 +4,7 @@ import io.ktor.server.routing.*
 import task.tracker.app.TaskManager
 import task.tracker.server.auth.SessionRepository
 import task.tracker.server.routes.authRoutes
-import task.tracker.server.routes.taskRoutes
+import task.tracker.server.routes.task.taskRoutes
 
 fun Application.configureRouting(
     taskManager: TaskManager,
