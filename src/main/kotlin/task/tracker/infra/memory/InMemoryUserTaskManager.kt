@@ -12,7 +12,7 @@ class InMemoryUserTaskManager : UserTaskManager {
     private val tasks: MutableMap<TaskID, Task> = mutableMapOf()
 
     override fun createTask(spec: TaskSpec): TaskDTO {
-        val task: Task =
+        val task =
             Task(
                 title = spec.title,
                 description = spec.description,
@@ -57,6 +57,12 @@ class InMemoryUserTaskManager : UserTaskManager {
     ): Boolean {
         val task = tasks[taskID] ?: return false
         task.complete(at)
+        return true
+    }
+
+    override fun uncompleteTask(taskID: TaskID): Boolean {
+        val task = tasks[taskID] ?: return false
+        task.uncomplete()
         return true
     }
 

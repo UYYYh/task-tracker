@@ -28,6 +28,8 @@ interface UserTaskManager {
         at: Instant? = null,
     ): Boolean
 
+    fun uncompleteTask(taskID: TaskID): Boolean
+
     fun getTask(taskID: TaskID): TaskDTO?
 
     fun listTasks(): List<TaskDTO>
