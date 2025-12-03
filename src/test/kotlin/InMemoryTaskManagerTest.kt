@@ -29,7 +29,7 @@ class InMemoryTaskManagerTest {
     fun testCreateAndDeleteTask() {
         assertEquals(userTaskManager.listTasks().size, 0)
 
-        val task1ID: TaskID = userTaskManager.createTask(arbitraryTaskSpec())
+        val task1ID: TaskID = TaskID(userTaskManager.createTask(arbitraryTaskSpec()).id)
         assertEquals(userTaskManager.listTasks().size, 1)
 
         val retrievedTask: TaskDTO? = userTaskManager.getTask(task1ID)
@@ -49,7 +49,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     fun testRenameTask() {
-        val task1ID: TaskID = userTaskManager.createTask(arbitraryTaskSpec())
+        val task1ID: TaskID = TaskID(userTaskManager.createTask(arbitraryTaskSpec()).id)
         userTaskManager.renameTask(task1ID, "Renamed Task")
 
         val retrievedTask: TaskDTO? = userTaskManager.getTask(task1ID)
@@ -60,7 +60,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     fun testChangeDescription() {
-        val task1ID: TaskID = userTaskManager.createTask(arbitraryTaskSpec())
+        val task1ID: TaskID = TaskID(userTaskManager.createTask(arbitraryTaskSpec()).id)
         userTaskManager.changeDescription(task1ID, "Changed description")
 
         val retrievedTask: TaskDTO? = userTaskManager.getTask(task1ID)
@@ -71,7 +71,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     fun testSetDeadline() {
-        val task1ID: TaskID = userTaskManager.createTask(arbitraryTaskSpec())
+        val task1ID: TaskID = TaskID(userTaskManager.createTask(arbitraryTaskSpec()).id)
         userTaskManager.setDeadline(task1ID, now.plus(1.days))
 
         val retrievedTask: TaskDTO? = userTaskManager.getTask(task1ID)
@@ -82,7 +82,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     fun testCompleteTask() {
-        val task1ID: TaskID = userTaskManager.createTask(arbitraryTaskSpec())
+        val task1ID: TaskID = TaskID(userTaskManager.createTask(arbitraryTaskSpec()).id)
         userTaskManager.completeTask(task1ID)
 
         val retrievedTask: TaskDTO? = userTaskManager.getTask(task1ID)

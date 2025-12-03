@@ -5,5 +5,5 @@ import task.tracker.app.UserID
 data class AuthenticatedUser(
     val userIDRaw: String,
 ) {
-    fun toUserId(): UserID = UserID(userIDRaw)
+    fun toUserID(): UserID = UserID(userIDRaw)
 }
