@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
         .main(args)
 }
 
-private fun Application.module() {
+fun Application.module() {
     configureSerialization()
     configureHTTP()
 
