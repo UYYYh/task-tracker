@@ -3,7 +3,6 @@ package com.example.task.tracker.domain
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import task.tracker.app.TaskID
-import java.util.UUID
 
 internal class Task(
     title: String = "Untitled Task",
@@ -86,8 +85,20 @@ internal class Task(
         this.completionState = TaskTime.Actual(completionTime)
     }
 
-    fun setDeadline(deadline: Instant) {
-        this.deadlineState = TaskTime.Actual(deadline)
+    fun uncomplete() {
+        this.completionState = TaskTime.NotYetSet
+    }
+
+    fun setDeadline(deadline: Instant?) {
+        this.deadlineState =
+            if (deadline == null) {
+                TaskTime.NoDeadLine
+            } else {
+                if (deadline < creationTime) {
+                    throw IllegalArgumentException("Deadline must be after creation time")
+                }
+                TaskTime.Actual(deadline)
+            }
     }
 
     override fun toString(): String =

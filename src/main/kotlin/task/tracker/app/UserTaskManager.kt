@@ -20,7 +20,7 @@ interface UserTaskManager {
 
     fun setDeadline(
         taskID: TaskID,
-        deadline: Instant,
+        deadline: Instant?,
     ): Boolean
 
     fun completeTask(

@@ -44,7 +44,7 @@ class InMemoryUserTaskManager : UserTaskManager {
 
     override fun setDeadline(
         taskID: TaskID,
-        deadline: Instant,
+        deadline: Instant?,
     ): Boolean {
         val task = tasks[taskID] ?: return false
         task.setDeadline(deadline)
