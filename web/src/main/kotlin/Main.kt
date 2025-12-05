@@ -1,82 +1,104 @@
+import api.*
+import api.TaskApi
 import kotlinx.browser.document
-import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import model.TaskDTO
 import org.w3c.dom.HTMLButtonElement
-import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 
 private val scope = MainScope()
 
 fun main() {
-    val root = document.getElementById("app") as HTMLDivElement
-    renderLogin(root)
-}
-
-private fun renderLogin(root: HTMLDivElement) {
-    root.innerHTML =
-        """
-        <h1>Task Tracker</h1>
-        <label>
-          Username:
-          <input id="username" />
-        </label>
-        <button id="login-btn">Login</button>
-        <pre id="status"></pre>
-        <div id="tasks"></div>
-        """.trimIndent()
-
+    // Grab DOM elements
     val usernameInput = document.getElementById("username") as HTMLInputElement
     val loginBtn = document.getElementById("login-btn") as HTMLButtonElement
-    val status = document.getElementById("status") as HTMLDivElement
-    val tasksDiv = document.getElementById("tasks") as HTMLDivElement
+    val statusDiv = document.getElementById("status") as HTMLElement
 
+    val titleInput = document.getElementById("task-title") as HTMLInputElement
+    val createBtn = document.getElementById("create-btn") as HTMLButtonElement
+    val tasksDiv = document.getElementById("tasks") as HTMLElement
+
+    fun renderTasks(tasks: List<TaskDTO>) {
+        if (tasks.isEmpty()) {
+            tasksDiv.textContent = "(no tasks yet)"
+            return
+        }
+        val sb = StringBuilder()
+        for (t in tasks) {
+            sb.append("• ").append(t.title)
+            if (t.description.isNotBlank()) {
+                sb.append(" — ").append(t.description)
+            }
+            sb.append("\n")
+        }
+        tasksDiv.textContent = sb.toString()
+    }
+
+    fun showStatus(msg: String) {
+        statusDiv.textContent = msg
+    }
+
+    fun loadTasks() {
+        scope.launch {
+            try {
+                showStatus("Loading tasks…")
+                val tasks = TaskApi.listTasks()
+                renderTasks(tasks)
+                showStatus("Loaded ${tasks.size} task(s)")
+            } catch (e: Throwable) {
+                showStatus("Error loading tasks: ${e.message}")
+            }
+        }
+    }
+
+    // Login button behaviour
     loginBtn.onclick = {
         val username = usernameInput.value.trim()
         if (username.isEmpty()) {
-            status.textContent = "Enter a username"
+            showStatus("Enter a username")
         }
 
         scope.launch {
             try {
-                status.textContent = "Logging in..."
-                val token = login(username)
-
-                // Save token so we can reuse later
-                window.localStorage.setItem("authToken", token)
-
-                status.textContent = "Logged in as $username"
-                loadAndRenderTasks(tasksDiv, token)
+                showStatus("Logging in…")
+                TaskApi.login(username)
+                showStatus("Logged in as $username")
+                loadTasks()
             } catch (e: Throwable) {
-                status.textContent = "Error: ${e.message}"
+                showStatus("Login error: ${e.message}")
             }
         }
     }
-}
 
-private fun loadAndRenderTasks(
-    target: HTMLDivElement,
-    token: String,
-) {
+    // Create task button behaviour
+    createBtn.onclick = {
+        val title = titleInput.value.trim()
+        if (title.isEmpty()) {
+            showStatus("Enter a task title")
+        }
+
+        scope.launch {
+            try {
+                showStatus("Creating task…")
+                TaskApi.createTask(title = title)
+                titleInput.value = ""
+                showStatus("Task created")
+                loadTasks()
+            } catch (e: Throwable) {
+                showStatus("Create error: ${e.message}")
+            }
+        }
+    }
+
+    // Optional: auto-load tasks if token already stored
+    // (refresh page after previous login)
     scope.launch {
         try {
-            val tasks = fetchTasks(token)
-            if (tasks.isEmpty()) {
-                target.innerHTML = "<p>No tasks yet.</p>"
-                return@launch
-            }
-
-            val html =
-                buildString {
-                    append("<h2>Your tasks</h2><ul>")
-                    for (t in tasks) {
-                        append("<li>${t.title} – ${t.description}</li>")
-                    }
-                    append("</ul>")
-                }
-            target.innerHTML = html
-        } catch (e: Throwable) {
-            target.innerHTML = "<p>Error loading tasks: ${e.message}</p>"
+            loadTasks()
+        } catch (_: Throwable) {
+            // ignore if not logged in yet
         }
     }
 }
