@@ -24,6 +24,13 @@ fun Application.configureStatusPages() {
             )
         }
 
+        exception<IllegalArgumentException> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                mapOf("error" to cause.message),
+            )
+        }
+
         exception<Throwable> { call, cause ->
             cause.printStackTrace()
             call.respond(
