@@ -116,4 +116,11 @@
     justify-content: flex-end;
 }
 
+.modal-buttons .danger {
+    background: #c62828;
+    color: #fff;
+    border: none;
+}
+
+
 

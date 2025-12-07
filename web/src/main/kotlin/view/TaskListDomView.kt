@@ -12,7 +12,6 @@ import kotlinx.datetime.toLocalDateTime
 import model.TaskDTO
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
-import util.formatPretty
 import util.toDatetimeLocalString
 
 private const val TIMELINE_START_OFFSET_DAYS: Int = -2 // e.g. -3 to start 3 days before earliest
@@ -27,7 +26,6 @@ class TaskListDomView(
     private val deadlineInput: HTMLInputElement,
     private val createBtn: HTMLButtonElement,
     private val timelineDiv: HTMLElement,
-    private val tasksDiv: HTMLElement,
     private val loggedInUser: HTMLElement,
     private val modalRoot: HTMLElement,
     private val modalTitle: HTMLInputElement,
@@ -35,6 +33,7 @@ class TaskListDomView(
     private val modalDeadline: HTMLInputElement,
     private val modalSave: HTMLButtonElement,
     private val modalCancel: HTMLButtonElement,
+    private val modalDelete: HTMLButtonElement,
 ) : TaskListView {
     // ========= companion: safe DOM wiring =========
 
@@ -80,7 +79,6 @@ class TaskListDomView(
             val createBtn = button("create-btn")
 
             val timelineDiv = block("timeline")
-            val tasksDiv = block("tasks")
             val loggedInUser = block("logged-in-user")
 
             val modalRoot = block("task-modal")
@@ -89,6 +87,7 @@ class TaskListDomView(
             val modalDeadline = block("modal-deadline") as HTMLInputElement
             val modalSave = button("modal-save")
             val modalCancel = button("modal-cancel")
+            val modalDelete = button("modal-delete")
 
             return TaskListDomView(
                 usernameInput = usernameInput,
@@ -99,7 +98,6 @@ class TaskListDomView(
                 deadlineInput = deadlineInput,
                 createBtn = createBtn,
                 timelineDiv = timelineDiv,
-                tasksDiv = tasksDiv,
                 loggedInUser = loggedInUser,
                 modalRoot = modalRoot,
                 modalTitle = modalTitle,
@@ -107,6 +105,7 @@ class TaskListDomView(
                 modalDeadline = modalDeadline,
                 modalSave = modalSave,
                 modalCancel = modalCancel,
+                modalDelete = modalDelete,
             )
         }
 
@@ -152,6 +151,14 @@ class TaskListDomView(
                 onTaskEditConfirmed?.invoke(id, title, description, deadlineRaw)
             }
         }
+
+        modalDelete.onclick = {
+            val id = currentTaskId
+            if (id != null) {
+                onDeleteTaskClicked?.invoke(id)
+            }
+            hideTaskDetails()
+        }
     }
 
     // ========= Presenter -> View methods =========
@@ -184,10 +191,7 @@ class TaskListDomView(
     }
 
     override fun showTasks(tasks: List<TaskDTO>) {
-        // 1. timeline
         renderTimeline(tasks)
-        // 2. detailed list
-        renderTaskList(tasks)
     }
 
     // ========= timeline rendering =========
@@ -300,40 +304,5 @@ class TaskListDomView(
 
         timelineDiv.appendChild(header)
         timelineDiv.appendChild(row)
-    }
-
-    // ========= list rendering =========
-
-    private fun renderTaskList(tasks: List<TaskDTO>) {
-        tasksDiv.innerHTML = ""
-
-        if (tasks.isEmpty()) {
-            tasksDiv.textContent = "(no tasks yet)"
-            return
-        }
-
-        for (t in tasks) {
-            val taskEl = document.createElement("div") as HTMLElement
-            taskEl.className = "task-item"
-
-            val textEl = document.createElement("pre") as HTMLElement
-            textEl.textContent =
-                """
-                • ${t.title}
-                  created: ${t.creationTime.formatPretty()}
-                  due:     ${t.deadline?.formatPretty() ?: "No deadline"}
-                  description: ${t.description}
-                """.trimIndent()
-
-            val deleteBtn = document.createElement("button") as HTMLButtonElement
-            deleteBtn.textContent = "Delete"
-            deleteBtn.onclick = {
-                onDeleteTaskClicked?.invoke(t.id)
-            }
-
-            taskEl.appendChild(textEl)
-            taskEl.appendChild(deleteBtn)
-            tasksDiv.appendChild(taskEl)
-        }
     }
 }
