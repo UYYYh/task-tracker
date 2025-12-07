@@ -8,6 +8,7 @@ data class TaskDTO(
     val id: String,
     val title: String,
     val description: String,
-    val completed: Boolean,
+    val creationTime: Instant,
     val deadline: Instant?,
+    val completionTime: Instant?,
 )
