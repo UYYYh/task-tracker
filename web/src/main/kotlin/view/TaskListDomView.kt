@@ -18,7 +18,7 @@ import org.w3c.dom.events.Event
 import util.formatPretty
 import util.toDatetimeLocalString
 
-private const val TIMELINE_START_OFFSET_DAYS: Int = 0 // e.g. -3 to start 3 days before earliest
+private const val TIMELINE_START_OFFSET_DAYS: Int = -1 // e.g. -3 to start 3 days before earliest
 private const val TIMELINE_LENGTH_DAYS: Int = 14
 
 class TaskListDomView(
@@ -26,7 +26,7 @@ class TaskListDomView(
     private val loginBtn: HTMLButtonElement,
     private val statusDiv: HTMLElement,
     private val titleInput: HTMLInputElement,
-    private val descriptionInput: HTMLInputElement,
+    private val descriptionInput: HTMLTextAreaElement,
     private val deadlineInput: HTMLInputElement,
     private val createBtn: HTMLButtonElement,
     private val timelineDiv: HTMLElement,
@@ -42,6 +42,12 @@ class TaskListDomView(
     private val modalCancel: HTMLButtonElement,
     private val modalDelete: HTMLButtonElement,
     private val modalToggleComplete: HTMLButtonElement,
+    private val loginModalRoot: HTMLElement,
+    private val loginCancelBtn: HTMLButtonElement,
+    private val userIconToggleBtn: HTMLButtonElement,
+    private val createTaskModalRoot: HTMLElement,
+    private val createCancelBtn: HTMLButtonElement,
+    private val addTaskToggleBtn: HTMLButtonElement,
 ) : TaskListView {
     // ========= companion: safe DOM wiring =========
 
@@ -76,13 +82,23 @@ class TaskListDomView(
             return el
         }
 
+        private fun textarea(id: String): HTMLTextAreaElement {
+            val el =
+                document.getElementById(id)
+                    ?: error("No element with id='$id' found in HTML")
+            if (el !is HTMLTextAreaElement) {
+                error("Element with id='$id' is <${el.tagName}> but expected <textarea>")
+            }
+            return el
+        }
+
         fun fromDocument(): TaskListDomView {
             val usernameInput = input("username")
             val loginBtn = button("login-btn")
             val statusDiv = block("status")
 
             val titleInput = input("task-title")
-            val descriptionInput = input("task-description")
+            val descriptionInput = textarea("task-description")
             val deadlineInput = input("task-deadline")
             val createBtn = button("create-btn")
 
@@ -100,6 +116,14 @@ class TaskListDomView(
             val modalCancel = button("modal-cancel")
             val modalDelete = button("modal-delete")
             val modalToggleComplete = button("modal-toggle-complete")
+
+            val loginModalRoot = block("login-modal")
+            val loginCancelBtn = button("login-cancel")
+            val userIconToggleBtn = button("user-icon-toggle")
+
+            val createTaskModalRoot = block("create-task-modal")
+            val createCancelBtn = button("create-cancel")
+            val addTaskToggleBtn = button("add-task-toggle")
 
             return TaskListDomView(
                 usernameInput = usernameInput,
@@ -122,6 +146,12 @@ class TaskListDomView(
                 modalStatus = modalStatus,
                 modalToggleComplete = modalToggleComplete,
                 modalCompleted = modalCompleted,
+                loginModalRoot = loginModalRoot,
+                loginCancelBtn = loginCancelBtn,
+                userIconToggleBtn = userIconToggleBtn,
+                createTaskModalRoot = createTaskModalRoot,
+                createCancelBtn = createCancelBtn,
+                addTaskToggleBtn = addTaskToggleBtn,
             )
         }
 
@@ -185,6 +215,40 @@ class TaskListDomView(
                 onToggleCompletionClicked?.invoke(id, !currentIsCompleted)
             }
             hideTaskDetails()
+        }
+
+        userIconToggleBtn.onclick = {
+            loginModalRoot.classList.remove("hidden")
+            usernameInput.focus()
+        }
+
+        loginCancelBtn.onclick = {
+            loginModalRoot.classList.add("hidden")
+        }
+
+        loginBtn.onclick = {
+            val username = usernameInput.value.trim()
+            onLoginClicked?.invoke(username)
+            loginModalRoot.classList.add("hidden")
+        }
+
+        // open create-task modal
+        addTaskToggleBtn.onclick = {
+            createTaskModalRoot.classList.remove("hidden")
+            titleInput.focus()
+        }
+
+        createCancelBtn.onclick = {
+            createTaskModalRoot.classList.add("hidden")
+        }
+
+        createBtn.onclick = {
+            val title = titleInput.value.trim()
+            val description = descriptionInput.value.trim()
+            val deadlineRaw = deadlineInput.value.trim()
+            onCreateTaskClicked?.invoke(title, description, deadlineRaw)
+            // close after submit; presenter will refresh tasks
+            createTaskModalRoot.classList.add("hidden")
         }
     }
 

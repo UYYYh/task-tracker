@@ -8,43 +8,83 @@
 
 <body>
 
-<h1>Task Tracker</h1>
+<!-- ========= TOP BAR ========= -->
+<div id="top-bar">
+    <h1>Task Tracker</h1>
 
-<!-- ======================= LOGIN ======================= -->
-<section>
-    <h2>Login</h2>
-    <input id="username" placeholder="Username" />
-    <button id="login-btn">Login</button>
-</section>
+    <div id="user-panel">
+        <button id="user-icon-toggle" class="icon-button" aria-label="Sign in">
+            👤
+        </button>
+        <div id="logged-in-user">Not signed in</div>
+    </div>
+</div>
 
-<!-- ======================= CREATE TASK ======================= -->
-<section>
-    <h2>Create Task</h2>
-    <input id="task-title" placeholder="Task title" />
-
-    <h3>Description</h3>
-    <input id="task-description" placeholder="Task description" />
-
-    <h3>Deadline (optional)</h3>
-    <input id="task-deadline" type="datetime-local" />
-
-    <button id="create-btn">Create</button>
-</section>
-
-<!-- ======================= STATUS ======================= -->
+<!-- ========= STATUS ========= -->
 <section>
     <h2>Status</h2>
     <pre id="status"></pre>
-    <pre id="logged-in-user"></pre>
 </section>
 
-<!-- ======================= TIMELINE ======================= -->
+<!-- ========= TIMELINE ========= -->
 <section>
-    <h2>Timeline</h2>
+    <div class="section-header">
+        <h2>Timeline</h2>
+        <button id="add-task-toggle" class="icon-button" aria-label="Add task">
+            +
+        </button>
+    </div>
     <div id="timeline"></div>
 </section>
 
-<!-- Task details modal -->
+<!-- ========= LOGIN MODAL ========= -->
+<div id="login-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Sign in</h3>
+
+        <label>
+            Username
+            <!-- keep same id so Kotlin code still works -->
+            <input id="username" type="text" />
+        </label>
+
+        <div class="modal-buttons">
+            <!-- keep same id for existing onLoginClicked wiring -->
+            <button id="login-btn">Sign in</button>
+            <button id="login-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========= CREATE TASK MODAL ========= -->
+<div id="create-task-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3>New Task</h3>
+
+        <label>
+            Title
+            <!-- reuse existing ids so presenter code doesn’t change -->
+            <input id="task-title" placeholder="Task title" />
+        </label>
+
+        <label>
+            Description
+            <textarea id="task-description" rows="3" placeholder="Task description"></textarea>
+        </label>
+
+        <label>
+            Deadline (optional)
+            <input id="task-deadline" type="datetime-local" />
+        </label>
+
+        <div class="modal-buttons">
+            <button id="create-btn">Create</button>
+            <button id="create-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========= EXISTING TASK DETAILS MODAL ========= -->
 <div id="task-modal" class="modal hidden">
     <div class="modal-content">
         <h3>Task details</h3>
@@ -88,10 +128,6 @@
     </div>
 </div>
 
-
-
-
 <script src="web.js"></script>
-
 </body>
 </html>
