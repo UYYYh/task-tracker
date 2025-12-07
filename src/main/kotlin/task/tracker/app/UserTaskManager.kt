@@ -33,4 +33,12 @@ interface UserTaskManager {
     fun getTask(taskID: TaskID): TaskDTO?
 
     fun listTasks(): List<TaskDTO>
+
+    fun updateTask(
+        taskID: TaskID,
+        title: String,
+        description: String,
+        deadline: Instant?,
+        completionTime: Instant?,
+    ): Boolean
 }

@@ -10,11 +10,15 @@ import kotlinx.datetime.daysUntil
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import model.TaskDTO
-import org.w3c.dom.*
+import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.Event
+import util.formatPretty
 import util.toDatetimeLocalString
 
-private const val TIMELINE_START_OFFSET_DAYS: Int = -2 // e.g. -3 to start 3 days before earliest
+private const val TIMELINE_START_OFFSET_DAYS: Int = 0 // e.g. -3 to start 3 days before earliest
 private const val TIMELINE_LENGTH_DAYS: Int = 14
 
 class TaskListDomView(
@@ -31,9 +35,13 @@ class TaskListDomView(
     private val modalTitle: HTMLInputElement,
     private val modalDescription: HTMLTextAreaElement,
     private val modalDeadline: HTMLInputElement,
+    private val modalCompleted: HTMLInputElement,
+    private val modalCreated: HTMLElement,
+    private val modalStatus: HTMLElement,
     private val modalSave: HTMLButtonElement,
     private val modalCancel: HTMLButtonElement,
     private val modalDelete: HTMLButtonElement,
+    private val modalToggleComplete: HTMLButtonElement,
 ) : TaskListView {
     // ========= companion: safe DOM wiring =========
 
@@ -85,9 +93,13 @@ class TaskListDomView(
             val modalTitle = block("modal-title") as HTMLInputElement
             val modalDescription = block("modal-description") as HTMLTextAreaElement
             val modalDeadline = block("modal-deadline") as HTMLInputElement
+            val modalCompleted = block("modal-completed") as HTMLInputElement
+            val modalCreated = block("modal-created")
+            val modalStatus = block("modal-status")
             val modalSave = button("modal-save")
             val modalCancel = button("modal-cancel")
             val modalDelete = button("modal-delete")
+            val modalToggleComplete = button("modal-toggle-complete")
 
             return TaskListDomView(
                 usernameInput = usernameInput,
@@ -106,6 +118,10 @@ class TaskListDomView(
                 modalSave = modalSave,
                 modalCancel = modalCancel,
                 modalDelete = modalDelete,
+                modalCreated = modalCreated,
+                modalStatus = modalStatus,
+                modalToggleComplete = modalToggleComplete,
+                modalCompleted = modalCompleted,
             )
         }
 
@@ -120,9 +136,11 @@ class TaskListDomView(
     override var onCreateTaskClicked: ((String, String, String) -> Unit)? = null
     override var onDeleteTaskClicked: ((String) -> Unit)? = null
     override var onTaskClicked: ((String) -> Unit)? = null
-    override var onTaskEditConfirmed: ((String, String, String, String) -> Unit)? = null
+    override var onTaskEditConfirmed: ((String, String, String, String, String) -> Unit)? = null
+    override var onToggleCompletionClicked: ((taskId: String, makeCompleted: Boolean) -> Unit)? = null
 
     private var currentTaskId: String? = null
+    private var currentIsCompleted = false
 
     init {
         loginBtn.onclick = {
@@ -147,8 +165,9 @@ class TaskListDomView(
                 val title = modalTitle.value.trim()
                 val description = modalDescription.value.trim()
                 val deadlineRaw = modalDeadline.value.trim()
+                val completionTimeRaw = modalCompleted.value.trim()
 
-                onTaskEditConfirmed?.invoke(id, title, description, deadlineRaw)
+                onTaskEditConfirmed?.invoke(id, title, description, deadlineRaw, completionTimeRaw)
             }
         }
 
@@ -156,6 +175,14 @@ class TaskListDomView(
             val id = currentTaskId
             if (id != null) {
                 onDeleteTaskClicked?.invoke(id)
+            }
+            hideTaskDetails()
+        }
+
+        modalToggleComplete.onclick = {
+            val id = currentTaskId
+            if (id != null) {
+                onToggleCompletionClicked?.invoke(id, !currentIsCompleted)
             }
             hideTaskDetails()
         }
@@ -179,9 +206,38 @@ class TaskListDomView(
 
     override fun showTaskDetails(task: TaskDTO) {
         currentTaskId = task.id
+
+        modalCreated.textContent = task.creationTime.formatPretty() // or toDatetimeLocalString()
         modalTitle.value = task.title
         modalDescription.value = task.description
         modalDeadline.value = task.deadline?.toDatetimeLocalString() ?: ""
+        modalCompleted.value = task.completionTime?.toDatetimeLocalString() ?: ""
+
+        val now = Clock.System.now()
+
+        val statusText =
+            when {
+                task.completionTime != null &&
+                    task.deadline != null &&
+                    task.completionTime > task.deadline ->
+                    "Completed late"
+
+                task.completionTime != null ->
+                    "Completed"
+
+                task.deadline != null && task.deadline < now ->
+                    "Overdue"
+
+                else ->
+                    "Incomplete"
+            }
+
+        modalStatus.textContent = statusText
+        currentIsCompleted = task.completionTime != null
+
+        modalToggleComplete.textContent =
+            if (currentIsCompleted) "Mark incomplete" else "Complete now"
+
         modalRoot.classList.remove("hidden")
     }
 
@@ -291,7 +347,32 @@ class TaskListDomView(
             val endIdx = firstDay.daysUntil(clampedEnd)
 
             val card = document.createElement("div") as HTMLElement
-            card.className = "timeline-task-card"
+            card.classList.add("timeline-task-card")
+
+            val now = Clock.System.now()
+
+            when {
+                // completed late
+                t.completionTime != null && t.deadline != null && t.completionTime > t.deadline ->
+                    card.classList.add("completed-late")
+
+                // completed on time
+                t.completionTime != null ->
+                    card.classList.add("completed")
+
+                // incomplete + has deadline + overdue
+                t.deadline != null && t.deadline < now ->
+                    card.classList.add("overdue")
+
+                // incomplete + has deadline + not overdue
+                t.deadline != null ->
+                    card.classList.add("incomplete")
+
+                // incomplete + NO deadline
+                else ->
+                    card.classList.add("no-deadline")
+            }
+
             card.textContent = t.title
             card.style.setProperty("grid-column", "${startIdx + 1} / ${endIdx + 2}")
 

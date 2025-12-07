@@ -77,6 +77,9 @@ internal class Task(
         complete(null)
     }
 
+    // completionTime can be null, in which case the current time is used
+    // The task also does not have to be incomplete, the completion time can
+    // be set even if the task is already completed
     fun complete(completionTime: Instant?) {
         val completionTime = completionTime ?: Clock.System.now()
         if (completionTime < creationTime) {
@@ -86,6 +89,9 @@ internal class Task(
     }
 
     fun uncomplete() {
+        if (!isCompleted) {
+            throw IllegalStateException("Task is not completed")
+        }
         this.completionState = TaskTime.NotYetSet
     }
 
@@ -101,10 +107,50 @@ internal class Task(
             }
     }
 
+    fun update(
+        newTitle: String,
+        newDescription: String,
+        newDeadline: Instant?,
+        newCompletionTime: Instant?, // null => "mark as not completed"
+    ) {
+        // Snapshot old state
+        val oldTitle = this.title
+        val oldDescription = this.description
+        val oldDeadline = this.deadline
+        val oldCompletionState = this.completionState
+
+        try {
+            // Apply new basic fields
+            setTitle(newTitle)
+            setDescription(newDescription)
+            setDeadline(newDeadline)
+
+            // Apply completion state
+            if (newCompletionTime == null) {
+                // Caller wants "not completed"
+                if (isCompleted) {
+                    uncomplete()
+                }
+            } else {
+                // Caller wants "completed at this time (or now if null inside complete)"
+                complete(newCompletionTime)
+            }
+        } catch (e: Exception) {
+            // Rollback everything atomically
+            this.title = oldTitle
+            this.description = oldDescription
+            setDeadline(oldDeadline)
+            this.completionState = oldCompletionState
+            throw e
+        }
+    }
+
     override fun toString(): String =
         "{ Title: '$title' \n" +
             "Description='$description' \n" +
             "creationTime=$creationTime \n" +
             "deadline=$deadline \n" +
             "completionTime=$completionTime }"
+
+    fun copy(): Task = Task(title, description, creationTime, deadline, completionTime)
 }

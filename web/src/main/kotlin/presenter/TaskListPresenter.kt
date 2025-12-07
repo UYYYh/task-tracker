@@ -4,6 +4,7 @@ import api.TaskApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import model.TaskDTO
 import util.toInstantOrNull
 import view.TaskListView
@@ -13,7 +14,7 @@ class TaskListPresenter(
     private val view: TaskListView,
     private val scope: CoroutineScope = MainScope(),
 ) {
-    private var currentTasks: List<TaskDTO> = emptyList()
+    private var currentTasks: Map<String, TaskDTO> = emptyMap()
 
     init {
         view.onLoginClicked = { username ->
@@ -29,12 +30,16 @@ class TaskListPresenter(
         }
 
         view.onTaskClicked = onTaskClicked@{ taskId ->
-            val task = currentTasks.find { it.id == taskId } ?: return@onTaskClicked
+            val task = currentTasks[taskId] ?: return@onTaskClicked
             view.showTaskDetails(task)
         }
 
-        view.onTaskEditConfirmed = { taskId, title, description, deadlineRaw ->
-            handleEditTask(taskId, title, description, deadlineRaw)
+        view.onTaskEditConfirmed = { taskId, title, description, deadlineRaw, completionTimeRaw ->
+            handleEditTask(taskId, title, description, deadlineRaw, completionTimeRaw)
+        }
+
+        view.onToggleCompletionClicked = { taskId, completed ->
+            handleToggleCompletion(taskId, completed)
         }
     }
 
@@ -47,6 +52,26 @@ class TaskListPresenter(
                 // probably not logged in yet, ignore
             }
         }
+    }
+
+    private fun handleToggleCompletion(
+        taskId: String,
+        makeCompleted: Boolean,
+    ) {
+        val task = currentTasks[taskId] ?: throw IllegalStateException("Task not found: $taskId")
+        val completionTimeRaw =
+            if (makeCompleted) {
+                Clock.System.now().toString()
+            } else {
+                ""
+            }
+        handleEditTask(
+            taskId = task.id,
+            title = task.title,
+            description = task.description,
+            deadlineRaw = task.deadline?.toString() ?: "",
+            completionTimeRaw = completionTimeRaw,
+        )
     }
 
     private fun handleLogin(username: String) {
@@ -114,7 +139,7 @@ class TaskListPresenter(
         try {
             view.showStatus("Loading tasks…")
             val tasks = api.listTasks()
-            currentTasks = tasks
+            currentTasks = tasks.associateBy { it.id }
             view.showTasks(tasks)
             view.showStatus("Loaded ${tasks.size} task(s)")
         } catch (e: Throwable) {
@@ -127,13 +152,18 @@ class TaskListPresenter(
         title: String,
         description: String,
         deadlineRaw: String,
+        completionTimeRaw: String,
     ) {
-        val deadlineInstant = deadlineRaw.toInstantOrNull() // same helper you used for create
-
         scope.launch {
             try {
                 view.showStatus("Updating task…")
-                api.updateTask(taskId, title, description, deadlineInstant)
+                api.updateTask(
+                    id = taskId,
+                    title = title,
+                    description = description,
+                    deadline = deadlineRaw.toInstantOrNull(),
+                    completionTime = completionTimeRaw.toInstantOrNull(),
+                )
                 view.hideTaskDetails()
                 loadTasks()
                 view.showStatus("Task updated")

@@ -22,9 +22,17 @@ fun Instant.formatPretty(): String {
 }
 
 fun String.toInstantOrNull(): Instant? {
-    if (isBlank()) return null
-    val local = LocalDateTime.parse(this)
-    return local.toInstant(TimeZone.currentSystemDefault())
+    val s = this.trim()
+    if (s.isEmpty()) return null
+
+    // 1) try ISO Instant first (handles ...Z / offsets)
+    return try {
+        Instant.parse(s)
+    } catch (_: Exception) {
+        // 2) fall back to local date-time (HTML datetime-local)
+        val local = LocalDateTime.parse(s)
+        local.toInstant(TimeZone.currentSystemDefault())
+    }
 }
 
 fun Instant.toDatetimeLocalString(): String {

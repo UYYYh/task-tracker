@@ -53,10 +53,13 @@
     margin-top: 4px;
 }
 
-/* task bars */
+/* TODAY column (make it really obvious) */
+.timeline-today-bar {
+    background: rgba(0, 150, 255, 0.25);  /* bright blue, semi-transparent */
+}
+
+/* base card */
 .timeline-task-card {
-    background: #225533;
-    color: #fff;
     padding: 4px 6px;
     border-radius: 4px;
     font-size: 11px;
@@ -64,11 +67,84 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     margin-top: 4px;
+    cursor: pointer;
+
+    background: transparent;
+    color: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* TODAY column (make it really obvious) */
-.timeline-today-bar {
-    background: rgba(0, 150, 255, 0.25);  /* bright blue, semi-transparent */
+/* ===== INCOMPLETE (YELLOW) ===== */
+.timeline-task-card.incomplete {
+    color: rgba(180, 140, 0, 0.85);
+    background: rgba(180, 140, 0, 0.12);
+}
+
+.timeline-task-card.incomplete:hover {
+    background: rgba(180, 140, 0, 0.24);
+}
+
+.timeline-task-card.incomplete:active {
+    background: rgba(180, 140, 0, 0.35);
+}
+
+
+/* ===== OVERDUE (RED) ===== */
+.timeline-task-card.overdue {
+    color: rgba(200, 0, 0, 0.85);
+    background: rgba(200, 0, 0, 0.12);
+}
+
+.timeline-task-card.overdue:hover {
+    background: rgba(200, 0, 0, 0.24);
+}
+
+.timeline-task-card.overdue:active {
+    background: rgba(200, 0, 0, 0.35);
+}
+
+
+/* ===== COMPLETED (GREEN) ===== */
+.timeline-task-card.completed {
+    color: rgba(0, 120, 0, 0.85);
+    background: rgba(0, 120, 0, 0.12);
+}
+
+.timeline-task-card.completed:hover {
+    background: rgba(0, 120, 0, 0.24);
+}
+
+.timeline-task-card.completed:active {
+    background: rgba(0, 120, 0, 0.35);
+}
+
+/* ===== COMPLETED LATE (BLUE) ===== */
+.timeline-task-card.completed-late {
+    color: rgba(0, 70, 220, 0.85);
+    background: rgba(0, 70, 180, 0.12);
+}
+
+.timeline-task-card.completed-late:hover {
+    background: rgba(0, 70, 180, 0.24);
+}
+
+.timeline-task-card.completed-late:active {
+    background: rgba(0, 70, 180, 0.35);
+}
+
+
+/* ===== INCOMPLETE WITH NO DEADLINE (GREY) ===== */
+.timeline-task-card.no-deadline {
+    color: rgba(80, 80, 80, 0.85);
+    background: rgba(80, 80, 80, 0.10);
+}
+
+.timeline-task-card.no-deadline:hover {
+    background: rgba(80, 80, 80, 0.22);
+}
+
+.timeline-task-card.no-deadline:active {
+    background: rgba(80, 80, 80, 0.35);
 }
 
 
@@ -121,6 +197,12 @@
     color: #fff;
     border: none;
 }
+
+.modal-field {
+    padding: 4px 0;
+    font-size: 13px;
+}
+
 
 
 

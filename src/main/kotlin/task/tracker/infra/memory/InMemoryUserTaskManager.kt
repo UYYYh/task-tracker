@@ -69,4 +69,22 @@ class InMemoryUserTaskManager : UserTaskManager {
     override fun getTask(taskID: TaskID): TaskDTO? = tasks[taskID]?.toDTO()
 
     override fun listTasks(): List<TaskDTO> = tasks.values.map(Task::toDTO)
+
+    override fun updateTask(
+        taskID: TaskID,
+        title: String,
+        description: String,
+        deadline: Instant?,
+        completionTime: Instant?,
+    ): Boolean {
+        val task = tasks[taskID] ?: return false
+        val backup = task.copy()
+        try {
+            task.update(title, description, deadline, completionTime)
+        } catch (e: Exception) {
+            tasks[taskID] = backup
+            throw e
+        }
+        return true
+    }
 }

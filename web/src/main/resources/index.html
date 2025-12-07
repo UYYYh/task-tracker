@@ -50,6 +50,16 @@
         <h3>Task details</h3>
 
         <label>
+            Created at
+            <div id="modal-created" class="modal-field"></div>
+        </label>
+
+        <label>
+            Status
+            <div id="modal-status" class="modal-field"></div>
+        </label>
+
+        <label>
             Title
             <input id="modal-title" type="text" />
         </label>
@@ -64,13 +74,20 @@
             <input id="modal-deadline" type="datetime-local" />
         </label>
 
+        <label>
+            Completed
+            <input id="modal-completed" type="datetime-local" />
+        </label>
+
         <div class="modal-buttons">
+            <button id="modal-toggle-complete">Complete now</button>
             <button id="modal-delete" class="danger">Delete</button>
             <button id="modal-save">Save</button>
             <button id="modal-cancel">Close</button>
         </div>
     </div>
 </div>
+
 
 
 

@@ -21,5 +21,14 @@ interface TaskListView {
     var onCreateTaskClicked: ((title: String, description: String, deadlineRaw: String) -> Unit)?
     var onDeleteTaskClicked: ((taskId: String) -> Unit)?
     var onTaskClicked: ((taskId: String) -> Unit)?
-    var onTaskEditConfirmed: ((taskId: String, title: String, description: String, deadlineRaw: String) -> Unit)?
+    var onTaskEditConfirmed: (
+        (
+            taskId: String,
+            title: String,
+            description: String,
+            deadlineRaw: String,
+            completionTimeRaw: String,
+        ) -> Unit
+    )?
+    var onToggleCompletionClicked: ((taskId: String, makeCompleted: Boolean) -> Unit)?
 }

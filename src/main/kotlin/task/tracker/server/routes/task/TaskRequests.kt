@@ -9,16 +9,9 @@ data class CreateTaskRequest(
 )
 
 @Serializable
-data class RenameRequest(
-    val newTitle: String,
-)
-
-@Serializable
-data class ChangeDescriptionRequest(
-    val newDescription: String,
-)
-
-@Serializable
-data class ChangeDeadlineRequest(
-    val deadline: Instant?, // null to clear deadline
+data class UpdateTaskRequest(
+    val deadline: Instant?,
+    val description: String,
+    val title: String,
+    val completionTime: Instant?,
 )

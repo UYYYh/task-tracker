@@ -1,17 +1,21 @@
 package task.tracker.server.routes.task
 
-import ChangeDeadlineRequest
-import ChangeDescriptionRequest
 import CreateTaskRequest
-import RenameRequest
+import UpdateTaskRequest
 import com.example.task.tracker.dto.TaskDTO
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.principal
+import io.ktor.server.plugins.MissingRequestParameterException
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
+import io.ktor.server.routing.post
 import task.tracker.app.TaskID
 import task.tracker.app.TaskManager
 import task.tracker.app.TaskSpec
@@ -86,33 +90,20 @@ fun Route.taskRoutes(taskManager: TaskManager) {
             call.respondBool(success)
         }
 
-        // PATCH /tasks/{id}/title
-        patch("/tasks/{id}/title") {
+        // PATCH /tasks/{id}/ -> updates task
+        patch("/tasks/{id}") {
             val userTasks = call.requireUserTasks(taskManager)
             val taskID = call.requireTaskID()
-            val body = call.receive<RenameRequest>()
+            val body = call.receive<UpdateTaskRequest>()
 
-            val success = userTasks.renameTask(taskID, body.newTitle)
-            call.respondBool(success)
-        }
-
-        // PATCH /tasks/{id}/description
-        patch("/tasks/{id}/description") {
-            val userTasks = call.requireUserTasks(taskManager)
-            val taskID = call.requireTaskID()
-            val body = call.receive<ChangeDescriptionRequest>()
-
-            val success = userTasks.changeDescription(taskID, body.newDescription)
-            call.respondBool(success)
-        }
-
-        // PATCH /tasks/{id}/deadline
-        patch("/tasks/{id}/deadline") {
-            val userTasks = call.requireUserTasks(taskManager)
-            val taskID = call.requireTaskID()
-            val body = call.receive<ChangeDeadlineRequest>()
-
-            val success = userTasks.setDeadline(taskID, body.deadline)
+            val success =
+                userTasks.updateTask(
+                    taskID,
+                    body.title,
+                    body.description,
+                    body.deadline,
+                    body.completionTime,
+                )
             call.respondBool(success)
         }
 

@@ -27,6 +27,14 @@ data class CreateTaskRequest(
     val deadline: Instant? = null,
 )
 
+@Serializable
+data class UpdateTaskRequest(
+    val deadline: Instant?,
+    val description: String,
+    val title: String,
+    val completionTime: Instant?,
+)
+
 private fun getToken(): String = TokenStore.token ?: throw Exception("Not logged in")
 
 object TaskApi {
@@ -153,8 +161,35 @@ object TaskApi {
         title: String,
         description: String,
         deadline: Instant?,
-    ) {
-        TODO()
+        completionTime: Instant?,
+    ): Boolean {
+        val token = getToken()
+
+        val request =
+            UpdateTaskRequest(
+                deadline = deadline,
+                description = description,
+                title = title,
+                completionTime = completionTime,
+            )
+        val bodyJson = json.encodeToString(request)
+
+        val response =
+            window
+                .fetch(
+                    "$BASE_URL/tasks/$id",
+                    jsObject {
+                        method = "PATCH"
+                        headers =
+                            jsObject {
+                                this["Authorization"] = "Bearer $token"
+                                this["Content-Type"] = "application/json"
+                            }
+                        body = bodyJson
+                    },
+                ).await()
+
+        return response.ok
     }
 }
 
