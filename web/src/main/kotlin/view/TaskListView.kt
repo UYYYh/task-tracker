@@ -3,11 +3,17 @@ package view
 import model.TaskDTO
 
 interface TaskListView {
-    fun showLoading()
+    // Presenter → View (output)
+    fun showStatus(message: String)
+
+    fun setLoggedInUser(username: String?)
 
     fun showTasks(tasks: List<TaskDTO>)
 
-    fun showError(message: String)
+    fun clearTaskInputs()
 
-    var onRefreshClicked: (() -> Unit)?
+    // View → Presenter (events, set by presenter)
+    var onLoginClicked: ((username: String) -> Unit)?
+    var onCreateTaskClicked: ((title: String, description: String, deadlineRaw: String) -> Unit)?
+    var onDeleteTaskClicked: ((taskId: String) -> Unit)?
 }

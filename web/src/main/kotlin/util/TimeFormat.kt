@@ -1,3 +1,5 @@
+package util
+
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJSDate
 import kotlin.js.Date
@@ -14,3 +16,10 @@ fun Instant.formatPretty(): String {
 
     return "$month/$day/$year, $hours:$minutes"
 }
+
+fun String.toInstantOrNull(): Instant? =
+    try {
+        Instant.parse(this)
+    } catch (_: Exception) {
+        null
+    }
