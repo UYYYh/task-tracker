@@ -252,61 +252,68 @@ class TaskListDomView(
 
     // ========= timeline rendering =========
 
-    private fun renderTimeline(
-        tasks: List<TaskDTO>,
-        offsetFromToday: Int = TIMELINE_START_OFFSET_DAYS,
-        numDays: Int = TIMELINE_LENGTH_DAYS,
-    ) {
-        timelineDiv.innerHTML = ""
-        if (tasks.isEmpty()) return
+    private data class TimelineWindow(
+        val firstDay: LocalDate,
+        val lastDay: LocalDate,
+    )
 
-        // 1. per-task date ranges
-        val ranges: List<Pair<LocalDate, LocalDate>> =
-            tasks.map { t ->
-                val start = t.creationTime.toLocalDate()
-                val end = (t.deadline ?: t.creationTime).toLocalDate()
-                val safeEnd = if (end < start) start else end
-                start to safeEnd
-            }
+    private fun computeRanges(tasks: List<TaskDTO>): List<Pair<LocalDate, LocalDate>> =
+        tasks.map { t ->
+            val start = t.creationTime.toLocalDate()
+            val end = (t.deadline ?: t.creationTime).toLocalDate()
+            val safeEnd = if (end < start) start else end
+            start to safeEnd
+        }
 
-        // 2. fixed visible window
+    private fun computeWindow(
+        ranges: List<Pair<LocalDate, LocalDate>>,
+        offsetFromToday: Int,
+        numDays: Int,
+    ): TimelineWindow {
         val earliestStart = ranges.minBy { it.first }.first
         val firstDay = earliestStart + DatePeriod(days = offsetFromToday)
         val lastDay = firstDay + DatePeriod(days = numDays - 1)
+        return TimelineWindow(firstDay, lastDay)
+    }
 
-        // 3. compute "today" column (if today is inside the window)
+    private fun computeTodayIndex(window: TimelineWindow): Int? {
         val today =
             Clock.System
                 .now()
                 .toLocalDateTime(userZone)
                 .date
-        val todayIndex: Int? =
-            if (today < firstDay || today > lastDay) {
-                null
-            } else {
-                firstDay.daysUntil(today)
-            }
 
-        timelineDiv.style.position = "relative"
-
-        if (todayIndex != null) {
-            val todayBar = document.createElement("div") as HTMLElement
-            todayBar.className = "timeline-today-bar"
-            todayBar.style.position = "absolute"
-            todayBar.style.top = "0"
-            todayBar.style.bottom = "0"
-
-            val percentWidth = 100.0 / numDays
-            val left = percentWidth * todayIndex
-
-            todayBar.style.left = "$left%"
-            todayBar.style.width = "$percentWidth%"
-            todayBar.style.zIndex = "0"
-
-            timelineDiv.appendChild(todayBar)
+        return if (today < window.firstDay || today > window.lastDay) {
+            null
+        } else {
+            window.firstDay.daysUntil(today)
         }
+    }
 
-        // 5. header row (dates)
+    private fun buildTodayBar(
+        todayIndex: Int,
+        numDays: Int,
+    ): HTMLElement {
+        val bar = document.createElement("div") as HTMLElement
+        bar.className = "timeline-today-bar"
+        bar.style.position = "absolute"
+        bar.style.top = "0"
+        bar.style.bottom = "0"
+
+        val percentWidth = 100.0 / numDays
+        val left = percentWidth * todayIndex
+
+        bar.style.left = "$left%"
+        bar.style.width = "$percentWidth%"
+        bar.style.zIndex = "0"
+
+        return bar
+    }
+
+    private fun buildTimelineHeader(
+        window: TimelineWindow,
+        numDays: Int,
+    ): HTMLElement {
         val header = document.createElement("div") as HTMLElement
         header.className = "timeline-header"
         header.style.setProperty("display", "grid")
@@ -315,18 +322,53 @@ class TaskListDomView(
         header.style.zIndex = "1"
 
         for (i in 0 until numDays) {
-            val day = firstDay + DatePeriod(days = i)
+            val day = window.firstDay + DatePeriod(days = i)
             val cell = document.createElement("div") as HTMLElement
             cell.className = "timeline-day"
             cell.textContent = "${day.monthNumber}/${day.dayOfMonth}"
-
-            // vertical separators between days
             cell.style.setProperty("border-right", "1px solid #555")
-
             header.appendChild(cell)
         }
 
-        // 6. tasks row
+        return header
+    }
+
+    private fun HTMLElement.applyStatusClass(
+        task: TaskDTO,
+        now: Instant,
+    ) {
+        when {
+            // completed late
+            task.completionTime != null &&
+                task.deadline != null &&
+                task.completionTime > task.deadline ->
+                this.classList.add("completed-late")
+
+            // completed on time
+            task.completionTime != null ->
+                this.classList.add("completed")
+
+            // incomplete + has deadline + overdue
+            task.deadline != null && task.deadline < now ->
+                this.classList.add("overdue")
+
+            // incomplete + has deadline + not overdue
+            task.deadline != null ->
+                this.classList.add("incomplete")
+
+            // incomplete + NO deadline
+            else ->
+                this.classList.add("no-deadline")
+        }
+    }
+
+    private fun buildTimelineRow(
+        tasks: List<TaskDTO>,
+        ranges: List<Pair<LocalDate, LocalDate>>,
+        window: TimelineWindow,
+        numDays: Int,
+        onTaskClicked: ((String) -> Unit)?,
+    ): HTMLElement {
         val row = document.createElement("div") as HTMLElement
         row.className = "timeline-row"
         row.style.setProperty("display", "grid")
@@ -334,45 +376,23 @@ class TaskListDomView(
         row.style.position = "relative"
         row.style.zIndex = "1"
 
+        val now = Clock.System.now()
+
         tasks.forEachIndexed { idx, t ->
             val (start, end) = ranges[idx]
 
             // skip tasks outside visible window
-            if (end < firstDay || start > lastDay) return@forEachIndexed
+            if (end < window.firstDay || start > window.lastDay) return@forEachIndexed
 
-            val clampedStart = if (start < firstDay) firstDay else start
-            val clampedEnd = if (end > lastDay) lastDay else end
+            val clampedStart = if (start < window.firstDay) window.firstDay else start
+            val clampedEnd = if (end > window.lastDay) window.lastDay else end
 
-            val startIdx = firstDay.daysUntil(clampedStart)
-            val endIdx = firstDay.daysUntil(clampedEnd)
+            val startIdx = window.firstDay.daysUntil(clampedStart)
+            val endIdx = window.firstDay.daysUntil(clampedEnd)
 
             val card = document.createElement("div") as HTMLElement
             card.classList.add("timeline-task-card")
-
-            val now = Clock.System.now()
-
-            when {
-                // completed late
-                t.completionTime != null && t.deadline != null && t.completionTime > t.deadline ->
-                    card.classList.add("completed-late")
-
-                // completed on time
-                t.completionTime != null ->
-                    card.classList.add("completed")
-
-                // incomplete + has deadline + overdue
-                t.deadline != null && t.deadline < now ->
-                    card.classList.add("overdue")
-
-                // incomplete + has deadline + not overdue
-                t.deadline != null ->
-                    card.classList.add("incomplete")
-
-                // incomplete + NO deadline
-                else ->
-                    card.classList.add("no-deadline")
-            }
-
+            card.applyStatusClass(t, now)
             card.textContent = t.title
             card.style.setProperty("grid-column", "${startIdx + 1} / ${endIdx + 2}")
 
@@ -383,7 +403,73 @@ class TaskListDomView(
             row.appendChild(card)
         }
 
-        timelineDiv.appendChild(header)
-        timelineDiv.appendChild(row)
+        return row
+    }
+
+    private fun buildTimelineLegend(): HTMLElement {
+        val legend = document.createElement("div") as HTMLElement
+        legend.className = "timeline-legend"
+
+        fun addLegendItem(
+            colorClass: String,
+            label: String,
+        ) {
+            val item = document.createElement("div") as HTMLElement
+            item.className = "timeline-legend-item"
+
+            val swatch = document.createElement("span") as HTMLElement
+            swatch.className = "legend-swatch $colorClass"
+
+            val text = document.createElement("span") as HTMLElement
+            text.textContent = label
+
+            item.appendChild(swatch)
+            item.appendChild(text)
+            legend.appendChild(item)
+        }
+
+        addLegendItem("completed", "Completed on time")
+        addLegendItem("completed-late", "Completed late")
+        addLegendItem("overdue", "Overdue")
+        addLegendItem("incomplete", "Incomplete (has deadline)")
+        addLegendItem("no-deadline", "Incomplete (no deadline)")
+
+        return legend
+    }
+
+    private fun renderTimeline(
+        tasks: List<TaskDTO>,
+        offsetFromToday: Int = TIMELINE_START_OFFSET_DAYS,
+        numDays: Int = TIMELINE_LENGTH_DAYS,
+    ) {
+        timelineDiv.innerHTML = ""
+        if (tasks.isEmpty()) return
+
+        val ranges = computeRanges(tasks)
+        val window = computeWindow(ranges, offsetFromToday, numDays)
+        val todayIndex = computeTodayIndex(window)
+
+        // legend at the top
+        val legend = buildTimelineLegend()
+        timelineDiv.appendChild(legend)
+
+        // wrapper for header + row + today-bar
+        val gridWrapper = document.createElement("div") as HTMLElement
+        gridWrapper.className = "timeline-grid-wrapper"
+        gridWrapper.style.position = "relative"
+
+        // today bar lives INSIDE the wrapper
+        if (todayIndex != null) {
+            val todayBar = buildTodayBar(todayIndex, numDays)
+            gridWrapper.appendChild(todayBar)
+        }
+
+        val header = buildTimelineHeader(window, numDays)
+        val row = buildTimelineRow(tasks, ranges, window, numDays, onTaskClicked)
+
+        gridWrapper.appendChild(header)
+        gridWrapper.appendChild(row)
+
+        timelineDiv.appendChild(gridWrapper)
     }
 }

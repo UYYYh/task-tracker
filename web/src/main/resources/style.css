@@ -204,5 +204,53 @@
 }
 
 
+/* ===== TIMELINE LEGEND ===== */
+.timeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    align-items: center;
+}
+
+.timeline-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+}
+
+/* match the card colours (baseline state) */
+.legend-swatch.completed {
+    background: rgba(0, 120, 0, 0.12);
+    border-color: rgba(0, 120, 0, 0.85);
+}
+
+.legend-swatch.completed-late {
+    background: rgba(0, 70, 180, 0.12);
+    border-color: rgba(0, 70, 180, 0.85);
+}
+
+.legend-swatch.overdue {
+    background: rgba(200, 0, 0, 0.12);
+    border-color: rgba(200, 0, 0, 0.85);
+}
+
+.legend-swatch.incomplete {
+    background: rgba(180, 140, 0, 0.12);
+    border-color: rgba(180, 140, 0, 0.85);
+}
+
+.legend-swatch.no-deadline {
+    background: rgba(80, 80, 80, 0.12);
+    border-color: rgba(80, 80, 80, 0.85);
+}
 
 
