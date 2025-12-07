@@ -1,0 +1,475 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 400;
+}
+
+/* Headings: smooth, modern, no uppercase */
+h1, h2, h3 {
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+h3 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Inputs & textarea text */
+input,
+textarea {
+    font-family: "Inter", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+/* Labels inside modal */
+.modal-content label {
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.80rem;
+}
+
+/* Status text */
+#status,
+#logged-in-user {
+    font-family: "Inter", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+/* Buttons */
+button {
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    text-transform: none; /* no shouting */
+}
+
+/* ========= DESIGN TOKENS ========= */
+
+:root {
+    --bg-body: #020617;                /* slate-950-ish */
+    --bg-surface: #020817;             /* very dark slate */
+    --bg-surface-soft: #050c1f;
+    --bg-input: #020617;
+    --border-subtle: #1e293b;
+    --border-strong: #273549;
+
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --text-faint: #6b7280;
+
+    --accent: #22d3ee;                /* cyan */
+    --accent-soft: rgba(34, 211, 238, 0.12);
+    --accent-strong: #38bdf8;         /* blue-cyan */
+
+    --danger: #f97373;
+    --danger-soft: rgba(239, 68, 68, 0.12);
+
+    /* timeline state colours */
+    --state-green: #22c55e;
+    --state-green-soft: rgba(34, 197, 94, 0.12);
+
+    --state-blue: #38bdf8;
+    --state-blue-soft: rgba(56, 189, 248, 0.12);
+
+    --state-red: #f97373;
+    --state-red-soft: rgba(249, 115, 129, 0.12);
+
+    --state-yellow: #eab308;
+    --state-yellow-soft: rgba(234, 179, 8, 0.14);
+
+    --state-gray: #9ca3af;
+    --state-gray-soft: rgba(148, 163, 184, 0.16);
+}
+
+/* ========= GLOBAL ========= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 40px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+    background:
+            radial-gradient(circle at top, rgba(15, 23, 42, 0.55), transparent 60%),
+            radial-gradient(circle at 60% 120%, rgba(8, 47, 73, 0.4), transparent 60%),
+            var(--bg-body);
+    color: var(--text-main);
+}
+
+/* ========= TYPOGRAPHY ========= */
+
+h1 {
+    margin: 0 0 8px 0;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: none;
+
+    background: linear-gradient(to right, #e5f3ff, var(--accent-strong), #4ade80);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+h2 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+h3 {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+section {
+    margin-top: 18px;
+    padding: 14px 18px;
+    background: linear-gradient(to bottom right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+            0 18px 40px rgba(15, 23, 42, 0.75),
+            0 0 0 1px rgba(148, 163, 184, 0.03);
+}
+
+/* ========= FORM CONTROLS ========= */
+
+input,
+textarea {
+    background: var(--bg-input);
+    color: var(--text-main);
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    padding: 7px 9px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-faint);
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--accent-strong);
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+    background: #020617;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* buttons */
+
+button {
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: linear-gradient(to bottom, #0f172a, #020617);
+    color: var(--text-main);
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+            background 0.14s ease,
+            box-shadow 0.14s ease,
+            transform 0.08s ease,
+            border-color 0.14s ease;
+}
+
+button:hover {
+    border-color: var(--accent-strong);
+    background: linear-gradient(to bottom, #0b1220, #020617);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.9);
+}
+
+button.danger,
+#modal-delete {
+    border-color: transparent;
+    background: linear-gradient(to bottom, #7f1d1d, #450a0a);
+}
+
+button.danger:hover,
+#modal-delete:hover {
+    box-shadow: 0 12px 28px rgba(248, 113, 113, 0.4);
+}
+
+/* login / status tweaks */
+
+#status,
+#logged-in-user {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+/* ========= TIMELINE ========= */
+
+#timeline {
+    margin-top: 10px;
+}
+
+/* legend */
+
+.timeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+.timeline-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+}
+
+/* legend state colours */
+
+.legend-swatch.completed {
+    background: var(--state-green-soft);
+    border-color: var(--state-green);
+}
+
+.legend-swatch.completed-late {
+    background: var(--state-blue-soft);
+    border-color: var(--state-blue);
+}
+
+.legend-swatch.overdue {
+    background: var(--state-red-soft);
+    border-color: var(--state-red);
+}
+
+.legend-swatch.incomplete {
+    background: var(--state-yellow-soft);
+    border-color: var(--state-yellow);
+}
+
+.legend-swatch.no-deadline {
+    background: var(--state-gray-soft);
+    border-color: var(--state-gray);
+}
+
+/* wrapper around header + row */
+
+.timeline-grid-wrapper {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 1));
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+            0 18px 40px rgba(15, 23, 42, 0.85),
+            0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+/* today column */
+
+.timeline-today-bar {
+    background: linear-gradient(
+            to bottom,
+            rgba(56, 189, 248, 0.1),
+            rgba(22, 163, 74, 0.16)
+    );
+}
+
+/* header row */
+
+.timeline-header {
+    display: grid;
+    grid-auto-rows: 30px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.timeline-day {
+    text-align: center;
+    padding-top: 6px;
+    border-right: 1px solid rgba(30, 64, 175, 0.25);
+    border-bottom: 1px solid rgba(30, 64, 175, 0.3);
+}
+
+/* tasks row */
+
+.timeline-row {
+    display: grid;
+    grid-auto-rows: 26px;
+    font-size: 11px;
+    position: relative;
+    z-index: 1;
+}
+
+/* base card */
+
+.timeline-task-card {
+    margin-top: 4px;
+    margin-bottom: 2px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border: 1px solid transparent;
+    background: transparent;
+    transition:
+            background 0.12s ease,
+            border-color 0.12s ease,
+            transform 0.08s ease,
+            box-shadow 0.12s ease;
+}
+
+/* states */
+
+.timeline-task-card.completed {
+    color: var(--state-green);
+    background: var(--state-green-soft);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+.timeline-task-card.completed-late {
+    color: var(--state-blue);
+    background: var(--state-blue-soft);
+    border-color: rgba(56, 189, 248, 0.5);
+}
+
+.timeline-task-card.overdue {
+    color: var(--state-red);
+    background: var(--state-red-soft);
+    border-color: rgba(248, 113, 113, 0.6);
+}
+
+.timeline-task-card.incomplete {
+    color: var(--state-yellow);
+    background: var(--state-yellow-soft);
+    border-color: rgba(234, 179, 8, 0.5);
+}
+
+.timeline-task-card.no-deadline {
+    color: var(--state-gray);
+    background: var(--state-gray-soft);
+    border-color: rgba(148, 163, 184, 0.6);
+}
+
+/* hover / active */
+
+.timeline-task-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
+}
+
+.timeline-task-card:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.9);
+}
+
+/* ========= MODAL ========= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: radial-gradient(circle at top, #020617, #020817);
+    color: var(--text-main);
+    padding: 18px 20px;
+    border-radius: 18px;
+    min-width: 320px;
+    max-width: 460px;
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+            0 24px 60px rgba(15, 23, 42, 0.95),
+            0 0 0 1px rgba(51, 65, 85, 0.8);
+    font-size: 0.9rem;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.modal-content input,
+.modal-content textarea {
+    width: 100%;
+    margin-top: 4px;
+}
+
+.modal-field {
+    padding: 4px 0;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.modal-buttons {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
