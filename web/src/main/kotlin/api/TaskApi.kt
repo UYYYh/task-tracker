@@ -4,7 +4,6 @@ import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.TaskDTO
 import model.TokenStore
@@ -27,6 +26,8 @@ data class CreateTaskRequest(
     val description: String = "",
     val deadline: Instant? = null,
 )
+
+private fun getToken(): String = TokenStore.token ?: throw Exception("Not logged in")
 
 object TaskApi {
     private val json =
@@ -68,7 +69,7 @@ object TaskApi {
     // --- TASKS ------------------------------------------------------------
 
     suspend fun listTasks(): List<TaskDTO> {
-        val token = TokenStore.token ?: throw Exception("Not logged in")
+        val token = getToken()
 
         val response =
             window
@@ -92,10 +93,16 @@ object TaskApi {
     suspend fun createTask(
         title: String,
         description: String = "",
+        deadline: Instant? = null,
     ): TaskDTO {
-        val token = TokenStore.token ?: throw Exception("Not logged in")
+        val token = getToken()
 
-        val request = CreateTaskRequest(title = title, description = description)
+        val request =
+            CreateTaskRequest(
+                title = title,
+                description = description,
+                deadline = deadline,
+            )
         val bodyJson = json.encodeToString(request)
 
         val response =
@@ -120,6 +127,25 @@ object TaskApi {
 
         val text = response.text().await()
         return json.decodeFromString(text)
+    }
+
+    suspend fun deleteTask(taskId: String): Boolean {
+        val token = getToken()
+
+        val response =
+            window
+                .fetch(
+                    "$BASE_URL/tasks/$taskId",
+                    jsObject {
+                        method = "DELETE"
+                        headers =
+                            jsObject<dynamic> {
+                                this["Authorization"] = "Bearer $token"
+                            }
+                    },
+                ).await()
+
+        return response.ok
     }
 }
 
