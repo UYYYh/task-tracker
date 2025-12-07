@@ -5,7 +5,36 @@
     <title>Task Tracker</title>
 </head>
 <body>
-<div id="app"></div>
+<h1>Task Tracker</h1>
+
+<section>
+    <h2>Login</h2>
+    <input id="username" placeholder="Username" />
+    <button id="login-btn">Login</button>
+</section>
+
+<section>
+    <h2>Create Task</h2>
+    <input id="task-title" placeholder="Task title" />
+    <h2>Description</h2>
+    <input id="task-description" placeholder="Task description" />
+    <h3>Deadline (optional)</h3>
+    <input id="task-deadline" type="datetime-local">
+    <button id="create-btn">Create</button>
+</section>
+
+<section>
+    <h2>Status</h2>
+    <pre id="status"></pre>
+    <pre id="logged-in-user"></pre>
+</section>
+
+<section>
+    <h2>Your Tasks</h2>
+    <pre id="tasks"></pre>
+</section>
+
+<!-- webpack / Gradle will serve your compiled JS as web.js or similar -->
 <script src="web.js"></script>
 </body>
 </html>

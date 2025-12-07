@@ -1,4 +1,3 @@
-import api.*
 import api.TaskApi
 import kotlinx.browser.document
 import kotlinx.coroutines.MainScope
@@ -17,8 +16,12 @@ fun main() {
     val statusDiv = document.getElementById("status") as HTMLElement
 
     val titleInput = document.getElementById("task-title") as HTMLInputElement
+    val descriptionInput = document.getElementById("task-description") as HTMLInputElement
+    val deadlineInput = document.getElementById("task-deadline") as HTMLInputElement
     val createBtn = document.getElementById("create-btn") as HTMLButtonElement
     val tasksDiv = document.getElementById("tasks") as HTMLElement
+
+    val loggedInUser = document.getElementById("logged-in-user") as HTMLElement
 
     fun renderTasks(tasks: List<TaskDTO>) {
         if (tasks.isEmpty()) {
@@ -27,10 +30,14 @@ fun main() {
         }
         val sb = StringBuilder()
         for (t in tasks) {
-            sb.append("• ").append(t.title)
-            if (t.description.isNotBlank()) {
-                sb.append(" — ").append(t.description)
-            }
+            sb
+                .append("• ")
+                .append(
+                    "${t.title}\n" +
+                        "created: ${t.creationTime.formatPretty()}\n" +
+                        "due:     ${t.deadline?.formatPretty() ?: "No deadline"}\n" +
+                        "description: ${t.description}\n",
+                )
             sb.append("\n")
         }
         tasksDiv.textContent = sb.toString()
@@ -75,6 +82,7 @@ fun main() {
     // Create task button behaviour
     createBtn.onclick = {
         val title = titleInput.value.trim()
+        val description = descriptionInput.value.trim()
         if (title.isEmpty()) {
             showStatus("Enter a task title")
         }
@@ -82,8 +90,9 @@ fun main() {
         scope.launch {
             try {
                 showStatus("Creating task…")
-                TaskApi.createTask(title = title)
+                TaskApi.createTask(title = title, description = description)
                 titleInput.value = ""
+                descriptionInput.value = ""
                 showStatus("Task created")
                 loadTasks()
             } catch (e: Throwable) {
