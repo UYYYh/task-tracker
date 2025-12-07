@@ -3,38 +3,83 @@
 <head>
     <meta charset="UTF-8" />
     <title>Task Tracker</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+
 <h1>Task Tracker</h1>
 
+<!-- ======================= LOGIN ======================= -->
 <section>
     <h2>Login</h2>
     <input id="username" placeholder="Username" />
     <button id="login-btn">Login</button>
 </section>
 
+<!-- ======================= CREATE TASK ======================= -->
 <section>
     <h2>Create Task</h2>
     <input id="task-title" placeholder="Task title" />
-    <h2>Description</h2>
+
+    <h3>Description</h3>
     <input id="task-description" placeholder="Task description" />
+
     <h3>Deadline (optional)</h3>
-    <input id="task-deadline" type="datetime-local">
+    <input id="task-deadline" type="datetime-local" />
+
     <button id="create-btn">Create</button>
 </section>
 
+<!-- ======================= STATUS ======================= -->
 <section>
     <h2>Status</h2>
     <pre id="status"></pre>
     <pre id="logged-in-user"></pre>
 </section>
 
+<!-- ======================= TIMELINE ======================= -->
 <section>
-    <h2>Your Tasks</h2>
-    <pre id="tasks"></pre>
+    <h2>Timeline</h2>
+    <div id="timeline"></div>
 </section>
 
-<!-- webpack / Gradle will serve your compiled JS as web.js or similar -->
+<!-- ======================= TASK LIST ======================= -->
+<section>
+    <h2>Your Tasks</h2>
+    <div id="tasks"></div>
+</section>
+
+<!-- Task details modal -->
+<div id="task-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Task details</h3>
+
+        <label>
+            Title
+            <input id="modal-title" type="text" />
+        </label>
+
+        <label>
+            Description
+            <textarea id="modal-description" rows="3"></textarea>
+        </label>
+
+        <label>
+            Deadline
+            <input id="modal-deadline" type="datetime-local" />
+        </label>
+
+        <div class="modal-buttons">
+            <button id="modal-save">Save</button>
+            <button id="modal-cancel">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
 <script src="web.js"></script>
+
 </body>
 </html>

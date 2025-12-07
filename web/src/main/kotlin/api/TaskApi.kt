@@ -147,6 +147,15 @@ object TaskApi {
 
         return response.ok
     }
+
+    suspend fun updateTask(
+        id: String,
+        title: String,
+        description: String,
+        deadline: Instant?,
+    ) {
+        TODO()
+    }
 }
 
 /** Helper to build plain JS objects in Kotlin/JS **/
