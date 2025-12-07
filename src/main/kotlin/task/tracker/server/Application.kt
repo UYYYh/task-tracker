@@ -1,7 +1,7 @@
 package task.tracker.server
 
-import com.example.configureHTTP
 import com.example.configureSerialization
+import com.example.task.tracker.server.plugins.configureCORS
 import configureRouting
 import io.ktor.server.application.Application
 import io.ktor.server.netty.EngineMain
@@ -19,12 +19,12 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     configureSerialization()
-    configureHTTP()
 
     val taskManager: TaskManager = InMemoryTaskManager()
     val sessionRepository: SessionRepository = InMemorySessionRepository()
 
     configureTokenAuth(sessionRepository)
     configureStatusPages()
+    configureCORS()
     configureRouting(taskManager, sessionRepository)
 }
