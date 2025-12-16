@@ -23,6 +23,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
+    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation(kotlin("test-junit"))
 }
