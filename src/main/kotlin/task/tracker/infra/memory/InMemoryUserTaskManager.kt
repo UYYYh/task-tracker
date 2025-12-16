@@ -78,13 +78,7 @@ class InMemoryUserTaskManager : UserTaskManager {
         completionTime: Instant?,
     ): Boolean {
         val task = tasks[taskID] ?: return false
-        val backup = task.copy()
-        try {
-            task.update(title, description, deadline, completionTime)
-        } catch (e: Exception) {
-            tasks[taskID] = backup
-            throw e
-        }
+        task.update(title, description, deadline, completionTime)
         return true
     }
 }
